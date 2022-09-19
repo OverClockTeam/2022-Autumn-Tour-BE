@@ -1,1 +1,7 @@
-package _022_April_Tour_BE
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Printf("Hello Go")
+}
