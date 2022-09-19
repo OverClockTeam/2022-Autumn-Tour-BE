@@ -7,29 +7,14 @@ import (
 	"time"
 )
 
-type User struct {
-	Name     string
-	Password string
-	jwt.StandardClaims
-}
-
 var key = []byte("overclock")
 
-func createToken(name, password string) (string, error) {
-	u := User{
-		Name:     name,
-		Password: password,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
-			Issuer:    "lhy",
-			NotBefore: time.Now().Unix(), // 立即生效
-		},
-	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, u)
-	return token.SignedString(key)
+const expiration = time.Hour * 2 // 设置token 2h内有效
+func CreateToken(u User) (string, error) {
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, u).SignedString(key)
 }
 
-func parseToken(token string) (*User, error) {
+func ParseToken(token string) (*User, error) {
 	claims, err := jwt.ParseWithClaims(token, &User{}, func(token *jwt.Token) (interface{}, error) {
 		return key, nil
 	})
