@@ -52,8 +52,45 @@ func NewEngine() *gin.Engine {
 		return
 	})
 	r.POST("/login", func(c *gin.Context) {
-
+		name := c.PostForm("username")
+		password := c.PostForm("password")
+		if db.First(&User{Name: name, Password: password}).Error != nil {
+			c.JSON(http.StatusOK, gin.H{
+				"message": "用户不存在",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{
+			"message": "欢迎" + name,
+		})
+		return
 	})
+
+	g := r.Group("/index")
+	{
+		g.GET("/publish", JWTAuthMiddleHandler(), func(c *gin.Context) {
+			isAccessible, exists := c.Get("isAccessible")
+			if isAccessible.(bool) && exists {
+				c.HTML(http.StatusOK, "publish.html", nil)
+				return
+			}
+			c.Redirect(http.StatusTemporaryRedirect, "/login")
+		})
+		g.POST("/publish", func(c *gin.Context) {
+			var user User // 前端带上用户数据发送post请求
+			c.ShouldBind(&user)
+			post := user.NewPost(c.PostForm("title"), c.PostForm("content"))
+			if db.Create(post).Error != nil {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "发布失败",
+				})
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"message": "发布成功",
+				})
+			}
+		})
+	}
 	return r
 }
 

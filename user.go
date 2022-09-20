@@ -7,9 +7,13 @@ import (
 
 type User struct {
 	Name               string `json:"name" `
-	Password           string `json:"password" `
+	Password           string `json:"password" gorm:"MD5(password)"`
 	Email              string `json:"email" `
 	jwt.StandardClaims `gorm:"-"`
+}
+
+type Users struct {
+	Users []User
 }
 
 func NewUser(args ...string) *User {

@@ -12,6 +12,8 @@ import (
 )
 
 var db *gorm.DB
+var posts Posts
+var users Users
 
 // Config 本地读取配置用  与项目无关
 type Config struct {
@@ -48,7 +50,9 @@ func init() {
 		log.Println(err)
 	}
 	// 模型绑定
-	db.AutoMigrate(&User{})
+	db.AutoMigrate(&User{}, &Post{})
+	db.Find(&posts.Posts)
+	db.Find(&users.Users) //数据库读数据
 }
 func main() {
 
