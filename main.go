@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 type User struct {
-	username   string
+  username   string
   email      string
   passward   string
 }
