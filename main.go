@@ -5,7 +5,8 @@ import (
 	"net/http"
 	"net/smtp"
 	"strings"
-
+	"gorm.io/driver/mysql"
+  	"gorm.io/gorm"
 	"github.com/gin-gonic/gin"
 )
 type User struct {
@@ -13,3 +14,4 @@ type User struct {
   email      string
   passward   string
 }
+func main() {}
