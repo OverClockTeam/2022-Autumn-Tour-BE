@@ -1,7 +1,6 @@
 package main
 
-import "fmt"
-
 func main() {
-	fmt.Printf("Hello Go")
+	//fmt.Printf("Hello Go")
+	_ = downloadMusic("爸爸妈妈")
 }
