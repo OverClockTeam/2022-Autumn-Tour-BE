@@ -66,10 +66,13 @@ func downloadMusic(MusicName string) error {
 		fmt.Println("下载失败")
 		return nil
 	}
+
 	//download
 	downloadurl := download[start+6 : end+3]
 	filePath := "C:/Users/fuyik/Music/downloadmusic/" + MusicName + ".mp3"
 	err = downLoad(downloadurl, filePath)
+	filePath = "C:/Users/fuyik/Music/downloadmusic/" + MusicName + ".txt"
+	err = downloadlyrics(mrid, filePath)
 	if err != nil {
 		log.Printf(err.Error())
 	}
@@ -87,7 +90,7 @@ func downLoad(url string, filePath string) error {
 			return err
 		}
 		io.Copy(f, res.Body)
-		log.Println("下载成功！")
+		log.Println("歌曲下载成功！")
 		defer f.Close()
 		return nil
 	} else {

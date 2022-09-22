@@ -20,5 +20,5 @@ func main() {
 	//	fmt.Println(res)
 	//	_ = downloadMusic(res)
 	//}
-	_ = downloadMusic("La Campanella")
+	_ = downloadMusic("麻雀")
 }
