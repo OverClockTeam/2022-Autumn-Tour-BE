@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 )
 
@@ -16,10 +15,10 @@ func RandStringRunes(n int) string {
 }
 
 func main() {
-	for i := 0; i < 999; i++ {
-		res := RandStringRunes(2)
-		fmt.Println(res)
-		_ = downloadMusic(res)
-	}
-
+	//for i := 0; i < 999; i++ {
+	//	res := RandStringRunes(2)
+	//	fmt.Println(res)
+	//	_ = downloadMusic(res)
+	//}
+	_ = downloadMusic("La Campanella")
 }

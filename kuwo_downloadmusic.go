@@ -46,8 +46,8 @@ func downloadMusic(MusicName string) error {
 	}
 	mrid = mrid[:end-1]
 
+	//err = downloadlyrics(mrid)
 	//mrid->downloadpath
-	filePath := "C:/Users/fuyik/Music/downloadmusic/" + MusicName + ".mp3"
 	secondreq := "https://kuwo.cn/api/v1/www/music/playUrl?mid=" + mrid + "&type=music&httpsStatus=1&reqId=52f3c921-39ac-11ed-a443-91cfe5b56e50"
 	req, _ = http.NewRequest("GET", secondreq, nil)
 	req.Header.Set("Cookie", "_ga=GA1.2.1737849527.1663585977; Hm_lvt_cdb524f42f0ce19b169a8071123a4797=1663585977,1663685364; _gid=GA1.2.5029194.1663685364; Hm_lpvt_cdb524f42f0ce19b169a8071123a4797=1663749389; kw_token=CXD5AR9O0Z5")
@@ -68,6 +68,7 @@ func downloadMusic(MusicName string) error {
 	}
 	//download
 	downloadurl := download[start+6 : end+3]
+	filePath := "C:/Users/fuyik/Music/downloadmusic/" + MusicName + ".mp3"
 	err = downLoad(downloadurl, filePath)
 	if err != nil {
 		log.Printf(err.Error())
