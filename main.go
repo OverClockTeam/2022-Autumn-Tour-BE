@@ -1,17 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"net/smtp"
-	"strings"
-	"gorm.io/driver/mysql"
-  	"gorm.io/gorm"
-	"github.com/gin-gonic/gin"
+	"github.com/wejectchen/ginblog/model"
+	"github.com/wejectchen/ginblog/routes"
 )
-type User struct {
-  username   string
-  email      string
-  passward   string
+
+func main() {
+	// 数据库
+	model.InitDb()
+	// 初始化路由组件
+	routes.InitRouter()
+
 }
-func main() {}
