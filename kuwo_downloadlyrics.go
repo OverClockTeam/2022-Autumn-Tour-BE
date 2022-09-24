@@ -55,6 +55,5 @@ func downloadlyrics(mrid string, filepath string) error {
 		_, err = io.WriteString(file, value.time+" ")
 		_, err = io.WriteString(file, value.lineLyric+"\n")
 	}
-	log.Println("歌词下载成功！")
 	return err
 }
