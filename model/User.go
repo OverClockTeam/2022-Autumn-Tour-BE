@@ -8,5 +8,6 @@ type User struct{
 	Password string   `gorm:"type:varchar(20);not null " json:"password"`
 	Email string  `gorm:"type:varchar(30);not null " json:"email"`
 	Role int  `gorm:"type:int;not null " json:"role"`
-
 }
+
+
