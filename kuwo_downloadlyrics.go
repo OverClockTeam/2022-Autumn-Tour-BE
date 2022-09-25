@@ -38,7 +38,10 @@ func downloadlyrics(mrid string, filepath string) error {
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-
+	if result["data"].(map[string]interface{})["lrclist"] == nil {
+		fmt.Println("暂无歌词")
+		return nil
+	}
 	var lrc = result["data"].(map[string]interface{})["lrclist"].([]interface{})
 	var lyrics []Lyric
 	for _, value := range lrc {
@@ -57,3 +60,25 @@ func downloadlyrics(mrid string, filepath string) error {
 	}
 	return err
 }
+
+//func downloadmusicinfo(mrid string) error {
+//	lyricsUrl := "https://www.kuwo.cn/comment?type=get_rec_comment&f=web&page=1&rows=20&digest=15&sid=83001418&uid=0&prod=newWeb&httpsStatus=1&reqId=64a50050-3cac-11ed-8eb5-195d0541f2aa" + mrid
+//	req, _ := http.NewRequest("GET", lyricsUrl, nil)
+//	req.Header.Set("Cookie", "_ga=GA1.2.1737849527.1663585977; Hm_lvt_cdb524f42f0ce19b169a8071123a4797=1663585977,1663685364; _gid=GA1.2.5029194.1663685364; Hm_lpvt_cdb524f42f0ce19b169a8071123a4797=1663749389; kw_token=CXD5AR9O0Z5")
+//	req.Header.Set("csrf", "CXD5AR9O0Z5")
+//	req.Header.Set("Host", "www.kuwo.cn")
+//	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36")
+//
+//	resp, err := http.Get(lyricsUrl)
+//	if err != nil {
+//		log.Printf(err.Error())
+//		return err
+//	}
+//
+//	var firstResBytes []byte
+//	firstResBytes, _ = ioutil.ReadAll(resp.Body)
+//	defer resp.Body.Close()
+//	mridres := string(firstResBytes)
+//	fmt.Println(mridres)
+//	return err
+//}

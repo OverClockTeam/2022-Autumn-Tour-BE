@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 )
 
 type List struct {
@@ -16,12 +17,19 @@ type List struct {
 	name string
 }
 
-func downloadMusic(SearchName string) error {
+func downloadAll(SearchName string) {
+	for i := 1; i < 10; i++ {
+		_ = downloadMusic(SearchName, strconv.Itoa(i))
+		log.Println("Page" + strconv.Itoa(i) + "完成")
+	}
+}
+
+func downloadMusic(SearchName string, PageNum string) error {
 	//musicname->urlcode
 	urlname := url.QueryEscape(SearchName)
 
 	//urlcode->mrid
-	searchUrl := "https://www.kuwo.cn/api/www/search/searchMusicBykeyWord?key=" + urlname + "&pn=1&rn=30&httpsStatus=1&reqId=66186151-3989-11ed-8078-39fd02b59e03"
+	searchUrl := "https://www.kuwo.cn/api/www/search/searchMusicBykeyWord?key=" + urlname + "&pn=" + PageNum + "&rn=30&httpsStatus=1&reqId=66186151-3989-11ed-8078-39fd02b59e03"
 	req, _ := http.NewRequest("GET", searchUrl, nil)
 	req.Header.Set("Cookie", "_ga=GA1.2.1737849527.1663585977; Hm_lvt_cdb524f42f0ce19b169a8071123a4797=1663585977,1663685364; _gid=GA1.2.5029194.1663685364; Hm_lpvt_cdb524f42f0ce19b169a8071123a4797=1663749389; kw_token=CXD5AR9O0Z5")
 	req.Header.Set("csrf", "CXD5AR9O0Z5")
@@ -85,7 +93,7 @@ func downLoad(mrid string, MusicName string) error {
 		fmt.Println(err.Error())
 	}
 	if result["data"] == nil {
-		fmt.Println(MusicName + "下载失败")
+		fmt.Println(MusicName + "歌曲下载失败")
 		return nil
 	}
 	var downloadurl = result["data"].(map[string]interface{})["url"].(string)
