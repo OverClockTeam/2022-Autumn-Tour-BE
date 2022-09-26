@@ -16,6 +16,29 @@ func main() {
 	r.POST("/upload", uploadHandler)
 	r.Run()
 }
+
+	engine := gin.Default()
+
+	engine.GET("/login", get)
+	engine.POST("/login", post)
+
+	engine.Run(":8080")
+}
+
+func get(C *gin.Context) {
+	
+	id := C.Query("id")
+	fmt.Println(id)
+}
+
+func post(C *gin.Context) {
+
+	var p para
+	C.BindJSON(&p)
+
+	fmt.Println(p)
+	C.JSON(200, p)
+}
  resp, err := http.Get("")
     if err != nil {
         fmt.Println(err)
