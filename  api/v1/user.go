@@ -32,7 +32,7 @@ func AddUser(c *gin.Context){
 
 //查询用户列表
 func GetUsers(c *gin.Context){
-	pageSize,_ :=strconv.Atoi(c.Query("pagesize"))
+	pageSize,_ :=strconv.Atoi(c.Query("pageSize"))
 	pageNum,_ :=strconv.Atoi(c.Query("pageNum"))
 
 	if pageSize == 0{
