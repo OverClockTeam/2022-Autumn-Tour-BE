@@ -1,8 +1,8 @@
 package errmsg
 
 const(
-	SUCCEED = 200
-	ERROR   = 500
+	SUCCEED = 100
+	ERROR   = 200
 
 	//code = 1000... 用户模块的错误
 	ERROR_USERNAME_USED = 1001
@@ -13,8 +13,9 @@ const(
 	ERROR_TOKEN_WRONG = 1006
 	ERROR_TOKEN_TYPE_WRONG = 1007
 	//code = 2000...文章模块的错误
-	ERROR_CATENAME_USED = 2001
+	ERROR_TITLE_USED = 2001
 	//code = 3000...分类模块错误
+	ERROR_CATENAME_USED = 3001
 )
 
 var codeMsg = map[int]string{

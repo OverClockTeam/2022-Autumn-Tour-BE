@@ -12,8 +12,7 @@ type User struct{
 	gorm.Model
 	Username string   `gorm:"type:varchar(20);not null " json:"username"`
 	Password string   `gorm:"type:varchar(20);not null " json:"password"`
-	Email string  `gorm:"type:varchar(30);not null " json:"email"`
-	Role int  `gorm:"type:int;not null " json:"role"`
+	Email string  `gorm:"type:varchar(40);not null " json:"email"`
 }
 //查询用户是否存在
 func CheckUser(name string)(code int){
@@ -49,12 +48,11 @@ func EditUser(id int,data *User)int{
 	var maps = make(map[string]interface{})
 	var user User
 	maps["username"] = data.Username
-	maps["role"] = data.Role
 	err = db.Model(&user).Where("id = ?",id).Update(maps).Error
 	if err != nil{
 		return errmsg.ERROR
 	}
-	return errmsg.SUCCEE
+	return errmsg.SUCCEED
 }
 
 //删除用户
@@ -71,8 +69,8 @@ func DeleteUser(id int) int {
 func ScryptPassword(password string)string{
 	const KeyLen = 10
 	salt := make([]byte,8)
-	salt = []byte{12,32,4,6,66,22,222,11}
-	HashPw,err := scrypt.Key([]byte(password),salt,16384,8,1,KeyLen)
+	salt = []byte{10,20,30,40,50,60,80,70}
+	HashPw,err := scrypt.Key([]byte(password),salt,1024,8,1,KeyLen)
 	if err != nil {
 		log.Fatal(err)
 	}
