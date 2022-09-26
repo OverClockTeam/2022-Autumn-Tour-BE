@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+    	"io/ioutil"
+    	"net/http"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,6 +16,18 @@ func main() {
 	r.POST("/upload", uploadHandler)
 	r.Run()
 }
+ resp, err := http.Get("")
+    if err != nil {
+        fmt.Println(err)
+        return
+    }
+    defer resp.Body.Close()
+    body, err := ioutil.ReadAll(resp.Body)
+    fmt.Println(string(body))
+    fmt.Println(resp.StatusCode)
+    if resp.StatusCode == 200 {
+        fmt.Println("ok")
+    }
 
 func uploadHandler(c *gin.Context) {
 	header, err := c.FormFile(uploadFileKey)
@@ -25,4 +40,9 @@ func uploadHandler(c *gin.Context) {
 		// ignore
 	}
 }
+
+//基本的GET请求
+ 
+
+
 
