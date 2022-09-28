@@ -5,6 +5,7 @@
 - [gorm](https://github.com/go-gorm/gorm)
 - [jwt-go](https://github.com/dgrijalva/jwt-go)
 - [gojieba](https://github.com/yanyiwu/gojieba)
+- [gomail](https://github.com/go-gomail/gomail)
 ***
 ## 功能列表
 
