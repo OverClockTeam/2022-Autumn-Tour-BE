@@ -14,8 +14,10 @@ const(
 	ERROR_TOKEN_TYPE_WRONG = 1007
 	//code = 2000...文章模块的错误
 	ERROR_TITLE_USED = 2001
+	ERROR_ARTICLE_NOT_EXSIT = 2002
 	//code = 3000...分类模块错误
 	ERROR_CATENAME_USED = 3001
+	ERROR_CATEGORY_NOT_EXSIT = 3002
 )
 
 var codeMsg = map[int]string{

@@ -14,7 +14,7 @@ type Category struct{
 func CheckCate(name string)(code int){
 	var cate Category
 	db.Select("id").Where("name = ?",name).First(&cate) // 在数据表中查询
-	if cate.ID > 0{
+	if cate.id > 0{
 		return errmsg.ERROR_USERNAME_USED
 	}
 	return errmsg.SUCCEED
@@ -48,7 +48,7 @@ func EditCate(id int,data *Category)int{
 	if err != nil{
 		return errmsg.ERROR
 	}
-	return errmsg.SUCCEE
+	return errmsg.SUCCEED
 }
 //查询分类下的所有文章
 

@@ -77,3 +77,19 @@ func ScryptPassword(password string)string{
 	FinalPw := base64.StdEncoding.EncodeToString(HashPw)
 	return FinalPw
 }
+
+//检验密码正确与否来登录
+func LoginPassword(username string,password string) int{
+	var user User
+	db.Where("username = ?",username).First(&user)
+	var code int
+	if user.ID == 0{
+		code = errmsg.ERROR_USER_NOT_EXSIT
+	}
+	if ScryptPassword(password) != user.Password{
+		code = errmsg.ERROR_PASSWORD_WRONG
+	}else{
+		code = errmsg.SUCCEED
+	}
+	return code
+}

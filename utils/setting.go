@@ -8,7 +8,7 @@ import (
 var(
 	AppMode string
 	HttpPort string
-
+	JwtKey string
 	Db string
 	DbHost string
 	DbPort string
@@ -38,4 +38,5 @@ func LoadData(file *ini.File){
 	DbUser = file.Section("database").Key("DbUser").MustString("OverClock")
 	DbPassWord = file.Section("database").Key("DbPassword").MustString("031819lzs")
 	DbName = file.Section("database").Key("DbName").MustString("OverClock")
+	DbName = file.Section("JwtKey").Key("JwtKey").MustString("12345678")
 }
