@@ -91,6 +91,10 @@ func InitRouter(r *gin.Engine) {
 func main() {
 	r := gin.Default()
 	InitRouter(r)
+	r.GET("/main/user/link/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		c.String(200, "the link of %s is:localhost:8080/main/user/postFile/%s", id, id)
+	})
 	err := r.Run(":8080")
 	if err != nil {
 		return
