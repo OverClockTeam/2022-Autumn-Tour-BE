@@ -1,48 +1,54 @@
 package main
 
 import (
-	"fmt"
-    	"io/ioutil"
-    	"net/http"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"path/filepath"
 )
 
-var (
-	uploadFileKey = "upload-key"
-)
+type Person struct {
+	ID   string `uri:"id" binding:"required,uuid"`
+	Name string `uri:"name" binding:"required"`
+}
 
 func main() {
-	r := gin.Default()
-	r.POST("/upload", uploadHandler)
-	r.Run()
+	route := gin.Default()
+	route.GET("/:name/:id", func(c *gin.Context) {
+		var person Person
+		if err := c.ShouldBindUri(&person); err != nil {
+			c.JSON(400, gin.H{"msg": err.Error()})
+			return
+		}
+		c.JSON(200, gin.H{"name": person.Name, "uuid": person.ID})
+	})
+	route.Run(":8088")
+
+	router := gin.Default()
+	// Set a lower memory limit for multipart forms (default is 32 MiB)
+	router.MaxMultipartMemory = 8 << 20 // 8 MiB
+	router.Static("/", "./public")
+	router.POST("/upload", func(c *gin.Context) {
+		name := c.PostForm("name")
+		email := c.PostForm("email")
+
+		// Source
+		file, err := c.FormFile("file")
+		if err != nil {
+			c.String(http.StatusBadRequest, "get form err: %s", err.Error())
+			return
+		}
+
+		filename := filepath.Base(file.Filename)
+		if err := c.SaveUploadedFile(file, filename); err != nil {
+			c.String(http.StatusBadRequest, "upload file err: %s", err.Error())
+			return
+		}
+
+		c.String(http.StatusOK, "File %s uploaded successfully with fields name=%s and email=%s.", file.Filename, name, email)
+	})
+	router.Run(":8080")
 }
 
-	engine := gin.Default()
-
-	engine.GET("/login", get)
-	engine.POST("/login", post)
-
-	engine.Run(":8080")
-}
-
-func get(C *gin.Context) {
-	
-	id := C.Query("id")
-	fmt.Println(id)
-}
-
-func post(C *gin.Context) {
-
-	var p para
-	C.BindJSON(&p)
-
-	fmt.Println(p)
-	C.JSON(200, p)
-}
- resp, err := http.Get("")
-    if err != nil {
-        fmt.Println(err)
-        return
     }
     defer resp.Body.Close()
     body, err := ioutil.ReadAll(resp.Body)
