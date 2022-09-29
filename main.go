@@ -2,6 +2,8 @@ package main
 
 import (
 	LYXemail "LYX/email"
+	"crypto/md5"
+	"encoding/hex"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -88,13 +90,25 @@ func InitRouter(r *gin.Engine) {
 	}
 }
 
+func IdLink(v string) string {
+	d := []byte(v)
+	m := md5.New()
+	m.Write(d)
+	return hex.EncodeToString(m.Sum(nil))
+}
+
 func main() {
 	r := gin.Default()
 	InitRouter(r)
-	r.GET("/main/user/link/:id", func(c *gin.Context) {
-		id := c.Param("id")
-		c.String(200, "the link of %s is:localhost:8080/main/user/postFile/%s", id, id)
+
+	r.GET("/main/user/link", func(c *gin.Context) {
+		id := c.Query("id")
+		pswd := IdLink(id)
+		c.JSON(http.StatusOK, gin.H{
+			"link": "localhost:8080/main/user/" + pswd,
+		})
 	})
+
 	err := r.Run(":8080")
 	if err != nil {
 		return
