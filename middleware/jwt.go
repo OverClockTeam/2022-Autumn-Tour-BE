@@ -3,7 +3,7 @@ package middleware
 import (
 	"OverClock/utils"
 	"OverClock/utils/errmsg"
-	"github.com/dgrijalva/jwt-go/v4"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
@@ -18,18 +18,21 @@ type UserClaims struct{
 	jwt.StandardClaims
 }
 
+const TokenExpireDuration = time.Hour * 2
+
 //生成Token
 func GetToken(username string, password string)(string,int){
-	expiredTime := time.Now().Add(2 * time.Hour)
-	GetClaims := UserClaims{
-		Username:       username,
-		Password:       password,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expiredTime.Unix(),
-			Issuer:"OverClock",
+	c := UserClaims{
+		"username",
+		"password",
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(
+				time.Duration(1) * time.Hour).Unix(), // 过期时间
+			Issuer: "OverClock", // 签发人
 		},
 	}
-	reqtoken := jwt.NewWithClaims(jwt.SigningMethodHS256,GetClaims)
+	// 使用指定的签名方法创建签名对象
+	reqtoken := jwt.NewWithClaims(jwt.SigningMethodHS256,c)
 	token,err := reqtoken.SignedString(JwtKey)
 	if err != nil{
 		return "",errmsg.ERROR
@@ -39,58 +42,49 @@ func GetToken(username string, password string)(string,int){
 
 //验证token
 func ParseToken(token string)(*UserClaims,int){
-	gettoken,err := jwt.ParseWithClaims(token,&UserClaims{}, func(token *jwt.Token) (i interface{}, err error) {
+	gettoken,_ := jwt.ParseWithClaims(token,&UserClaims{}, func(token *jwt.Token) (i interface{}, err error) {
 		return JwtKey,nil
 	})
-	if claims,code := gettoken.Claims.(*UserClaims); gettoken.Valid  {
+	if claims,_ := gettoken.Claims.(*UserClaims); gettoken.Valid  {
 		return claims, errmsg.SUCCEED
 	}else{
 		return nil,errmsg.ERROR
 	}
 }
-//类似过滤器
+//中间件
 func JWTAuth() gin.HandlerFunc{
-	return func(c *gin.Context){
-		if strings.Contains(c.Request.RequestURI,"login"){
-			return
-		}
-
-		token := c.Request.Header.Get("token")
-		code := errmsg.SUCCEED
-		if token == ""{
-			code = errmsg.ERROR_TOKEN_EXIST}
-		pariseToken := strings.SplitN(token," ",2)
-		if len(pariseToken) != 2 && pariseToken[0] != "Bearer"{
-			code = errmsg.ERROR_TOKEN_TYPE_WRONG
-			c.JSON(http.StatusOK,gin.H{
-				"code":code,
-				"message": errmsg.GetErrMsg(code),
+	return func(c *gin.Context) {
+		authHeader := c.Request.Header.Get("Authorization")
+		if authHeader == "" {
+			c.JSON(http.StatusOK, gin.H{
+				"code": errmsg.ERROR_TOKEN_EXIST,
+				"msg":  "请求头中auth为空",
 			})
 			c.Abort()
 			return
 		}
-		claims,key := ParseToken(pariseToken[1])
-		if key == errmsg.ERROR{
-			key = errmsg.ERROR_TOKEN_WRONG
-			c.JSON(http.StatusOK,gin.H{
-				"code":code,
-				"message": errmsg.GetErrMsg(code),
-			})
-			c.Abort()
-			reutrn
-		}
-		if time.Now().Unix()>claims.ExpiresAt{
-			code = errmsg.ERROT_TOKEN_RUNTIME
-			c.JSON(http.StatusOK,gin.H{
-				"code":code,
-				"message": errmsg.GetErrMsg(code),
+		// 按空格分割
+		parts := strings.SplitN(authHeader, " ", 2)
+		if !(len(parts) == 2 && parts[0] == "Bearer") {
+			c.JSON(http.StatusOK, gin.H{
+				"code": errmsg.ERROR_TOKEN_TYPE_WRONG,
+				"msg":  "请求头中auth格式有误",
 			})
 			c.Abort()
 			return
 		}
-
-		c.Set("username",claims.Username)
-		c.Next()
+		mc, key := ParseToken(parts[1])
+		if key != errmsg.ERROR {
+			c.JSON(http.StatusOK, gin.H{
+				"code": errmsg.ERROT_TOKEN_RUNTIME,
+				"msg":  "无效的Token",
+			})
+			c.Abort()
+			return
+		}
+		// 将当前请求的username信息保存到请求的上下文c上
+		c.Set("username", mc.Username)
+		c.Next() // 后续的处理函数可以用过c.Get("username")来获取当前请求的用户信息
 	}
 
 }

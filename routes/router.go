@@ -1,10 +1,9 @@
 package router
 
 import (
-	v1 "OverClock/ api/v1"
-	"api/utils"
+	v1 "OverClock/api/v1"
+	"OverClock/utils"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 func InitRouter(){

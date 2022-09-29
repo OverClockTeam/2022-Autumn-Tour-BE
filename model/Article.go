@@ -52,7 +52,7 @@ func GetArticle(pageSize int,pageNum int) ([]Article,int) {
 	var article []Article
 	err = db.Preload("Category").Limit(pageSize).Offset((pageNum-1)*pageSize).Find(&article).Error
 	if err!= nil && err != gorm.ErrRecordNotFound{
-		return nil
+		return article,errmsg.ERROR
 	}
 	return article,errmsg.SUCCEED
 }

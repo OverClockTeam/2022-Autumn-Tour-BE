@@ -3,7 +3,6 @@ package main
 import (
 	"OverClock/model"
 	router "OverClock/routes"
-	"api/routes"
 )
 
 func main(){
