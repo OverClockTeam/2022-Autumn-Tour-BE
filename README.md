@@ -6,6 +6,7 @@
 - [jwt-go](https://github.com/dgrijalva/jwt-go)
 - [gojieba](https://github.com/yanyiwu/gojieba)
 - [gomail](https://github.com/go-gomail/gomail)
+- [sensitive](https://github.com/importcjj/sensitive)
 ***
 ## 功能列表
 

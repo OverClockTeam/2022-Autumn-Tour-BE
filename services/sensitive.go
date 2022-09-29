@@ -1,31 +1,15 @@
 package services
 
 import (
-	"github.com/yanyiwu/gojieba"
+	"github.com/importcjj/sensitive"
 )
 
-var SensitiveWords = []string{"sb", "SB", "Sb", "sB", "nt", "NT", "傻逼", "脑瘫"}
-
-func isSensitive(content string) bool {
-	for _, sensitiveWord := range SensitiveWords {
-		if content == sensitiveWord {
-			return true
-		}
-	}
-	return false
-}
+//var SensitiveWords = []string{"sb", "SB", "Sb", "sB", "nt", "NT", "傻逼", "脑瘫"}
 
 func Audit(s string) (hasSensitiveWord bool, result []string) {
-	j := gojieba.NewJieba()
-	for _, sensitiveWord := range SensitiveWords {
-		j.AddWord(sensitiveWord)
-	}
-	contents := j.CutAll(s)
-	for _, content := range contents {
-		if isSensitive(content) {
-			hasSensitiveWord = true
-			result = append(result, content)
-		}
-	}
+	filter := sensitive.New()
+	filter.LoadNetWordDict("https://raw.githubusercontent.com/importcjj/sensitive/master/dict/dict.txt")
+	result = filter.FindAll(s)
+	hasSensitiveWord = result != nil
 	return
 }
