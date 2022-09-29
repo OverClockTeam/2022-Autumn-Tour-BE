@@ -1,0 +1,38 @@
+//another undone way
+package plus
+
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"net/http"
+	"strconv"
+	"time"
+)
+
+func ToFileUpload(ctx *gin.Context) {
+	ctx.HTML(http.StatusOK, "chapter04/fileUpload.html", nil)
+}
+
+// 接收单文件
+func FileUpload(ctx *gin.Context) {
+	file, _ := ctx.FormFile("file") // 获取文件
+	fmt.Println(file.Filename)
+	time_unix := strconv.FormatInt(time.Now().Unix(), 10) // 获取时间戳并转成字符串
+	file_path := "upload/" + time_unix + file.Filename    // 设置保存文件的路径，不要忘了后面的文件名
+	ctx.SaveUploadedFile(file, file_path)                 // 保存文件
+	ctx.String(http.StatusOK, "上传成功")
+}
+
+// 接收多文件
+func FileUploads(ctx *gin.Context) {
+	form, _ := ctx.MultipartForm()
+	files := form.File["file"] // 获取文件
+
+	for _, file := range files {
+		fmt.Println(file.Filename)
+		file_path := "upload/" + file.Filename // 设置保存文件的路径，不要忘了后面的文件名
+		ctx.SaveUploadedFile(file, file_path)  // 保存文件
+	}
+
+	ctx.String(http.StatusOK, "上传成功")
+}
