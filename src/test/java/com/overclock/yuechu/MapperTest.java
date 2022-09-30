@@ -1,7 +1,9 @@
 package com.overclock.yuechu;
 
+import com.overclock.yuechu.entity.Comment;
 import com.overclock.yuechu.entity.Post;
 import com.overclock.yuechu.entity.User;
+import com.overclock.yuechu.repository.CommentMapper;
 import com.overclock.yuechu.repository.PostMapper;
 import com.overclock.yuechu.repository.UserMapper;
 import org.junit.jupiter.api.Test;
@@ -18,6 +20,9 @@ public class MapperTest {
 
     @Autowired
     PostMapper postMapper;
+
+    @Autowired
+    CommentMapper commentMapper;
 
     @Test
     public void userTest() {
@@ -60,6 +65,21 @@ public class MapperTest {
                 Post post = new Post(userId, title, content, tagId, isDelete, new Date(), null);
                 postMapper.insert(post);
             }
+        }
+    }
+
+    @Test
+    public void commentTest() {
+        System.out.println("commentMapper = " + commentMapper);
+        for (int i = 0; i < 10; i++) {
+            Comment comment = new Comment();
+            comment.setUserId(1L);
+            comment.setType(0);
+            comment.setTargetId(1575771680861294593L);
+            comment.setIsDelete(0);
+            comment.setCreateTime(new Date());
+            comment.setContent("什么什么什么什么什么什么什么什么什么什么什么什么什么什么什么？");
+            commentMapper.insert(comment);
         }
     }
 }

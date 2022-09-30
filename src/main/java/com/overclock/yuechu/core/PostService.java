@@ -3,12 +3,11 @@ package com.overclock.yuechu.core;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.overclock.yuechu.common.constant.PageConstants;
-import com.overclock.yuechu.common.vo.BaseResponse;
-import com.overclock.yuechu.common.vo.PageRequest;
-import com.overclock.yuechu.common.vo.PostRequest;
-import com.overclock.yuechu.common.vo.SimplePostsResponse;
+import com.overclock.yuechu.common.vo.*;
+import com.overclock.yuechu.entity.Comment;
 import com.overclock.yuechu.entity.Post;
 import com.overclock.yuechu.entity.User;
+import com.overclock.yuechu.repository.CommentMapper;
 import com.overclock.yuechu.repository.PostMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -29,6 +28,9 @@ public class PostService {
 
     @Autowired
     private PostMapper postMapper;
+
+    @Autowired
+    private CommentMapper commentMapper;
 
     public BaseResponse postPage(@NotNull PageRequest request) {
         QueryWrapper<Post> wrapper = new QueryWrapper<>();
@@ -63,7 +65,15 @@ public class PostService {
     public BaseResponse getDetailPost(Long postId) {
         Post post = postMapper.selectById(postId);
         System.out.println("post = " + post);
+        List<Comment> commentList = commentMapper.selectList(new QueryWrapper<Comment>().eq("target_id", post.getId()));
+        DetailPostResponse response = new DetailPostResponse();
+        response.setId(postId);
+        response.setUserId(post.getUserId());
+        response.setTitle(post.getTitle());
+        response.setContent(post.getContent());
+        response.setCreateTime(post.getCreateTime());
+        response.setComments(commentList);
         // TODO 获取帖子的评论以及评论的评论
-        return BaseResponse.ok().data(post).create();
+        return BaseResponse.ok().data(response).create();
     }
 }
