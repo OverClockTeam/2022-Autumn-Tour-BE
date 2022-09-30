@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--日志等级 All < Trace < Debug < Info < Warn < Error < Fatal < OFF-->
+<!--Status配置WARN后 Log4j2本身只打印WARN以上的日志  减去了很多Log4j2本身的Info日志(这个status不是为了限制用户的打印)-->
+<Configuration status="Info">
+    <Properties>
+        <!-- Property就是定义一个变量,在整个配置范围内生效-->
+        <!-- 例如这里的变量LOG_PATH就代表了路径/log/TestPath-->
+        <Property name="LOG_PATH">./log</Property>
+        <property name="APP_NAME" value="hust-helper"/>
+    </Properties>
+    <Appenders>
+        <!--节点信息,特殊节点 表示控制台的输出 只能这么写 记住name的值-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout
+                    charset="UTF-8"
+                    pattern="%highlight{%d{yyyy-MM-dd HH:mm:ss.SSS} [%t][%X{logId}] %-5level %logger{3} - %msg%n}"/>
+        </Console>
+        <!-- 表示这个节点是个异步节点, 在打印日志的时候是异步线程打印的 通过ref字段和上面的Console进行关联-->
+        <Async name="Async">
+            <AppenderRef ref="Console"/>
+        </Async>
+
+        <!--filePattern 是文件名的输出格式 决定了一个小时生成一个日志文件-->
+        <!--这个fileName deviceLog.log指的是每次写日志的时候都是写入到这个文件中的，然后按照CronTriggeringPolicy设置的时间-->
+        <!--将这个文件内的内容 按照PatternLayout设置的pattern生成一个新的文件 然后清空deviceLog.log等待之后的写入 这就是文件滚动更新-->
+        <!-- needGatherDeviceLog 是这个节点的名称-->
+        <RollingRandomAccessFile name="needGatherDeviceLog" fileName="${LOG_PATH}/${APP_NAME}.log"
+                                 filePattern="${LOG_PATH}/deviceLog.log.%d{yyyyMMddHHmm}">
+            <!--这里的pattern设置的打印日志的格式-->
+            <PatternLayout
+                    pattern="%d{MM-dd HH:mm:ss.SSS} [%t][%X{logId}] %-5level %logger{1}-%msg%n"
+                    charset="utf-8"/>
+            <!--CronTriggeringPolicy 设置的含义就是 这个时间段内打印的日志 会在时间结束后一起写入输入文件-->
+            <!--下一个时间段的日志会覆盖上一个时间段的日志-->
+            <!--因此这个schedule时间的设置 应该和你期望的多长时间生成一个日志文件一致 即你希望一小时生成一个日志文件，这里就应该设置一小时-->
+            <!--不然就会被一个文件名相同的全新日志文件覆盖-->
+            <CronTriggeringPolicy schedule="0 * * * * ?"/>
+
+
+            <!--文件滚动时的策略 这里就是30天之前 命名符合这个规则的日志 就会被自动删除-->
+            <!-- 需要注意 这里如果写${gatherDeviceLogPath} 相对日志 jarvis在部署到线上时 删除会失效 必须用绝对路径-->
+            <DefaultRolloverStrategy>
+                <Delete basePath="${LOG_PATH}" maxDepth="1">
+                    <IfFileName glob="deviceLog.log.*"/>
+                    <IfLastModified age="30d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+        <!-- 同样的该节点是异步节点-->
+        <Async name="gatherDeviceLogAsync">
+            <AppenderRef ref="needGatherDeviceLog"/>
+        </Async>
+    </Appenders>
+    <Loggers>
+        <!--没有单独指明采用哪个Logger就会用root节点来输出-->
+        <!--INFO级别的日志不特殊指明时会用name为Async的节点 存入日志文件中-->
+        <Root level="INFO">
+            <AppenderRef ref="Async"/>
+        </Root>
+        <!--指定数据库的debug级别的日志会存入日志文件中-->
+        <Logger name="org.hibernate.SQL" level="debug"></Logger>
+
+        <!-- 通过name字段可以使用该节点进行日志输出-->
+        <Logger name="DEVICE_LOG_LOGGER" additivity="false" level="INFO">
+            <AppenderRef ref="gatherDeviceLogAsync" />
+        </Logger>
+    </Loggers>
+</Configuration>
