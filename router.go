@@ -14,6 +14,10 @@ func routerInit() {
 		v2.GET("/getmusic", musicQuery)
 		v2.GET("/getlyrics", lyricsQuery)
 	}
-	//router.GET("/getMusic", musicQuery)
+	v3 := router.Group("list")
+	{
+		v3.POST("musiclist")
+		v3.GET("searchlist", searchQuery)
+	}
 	router.Run()
 }

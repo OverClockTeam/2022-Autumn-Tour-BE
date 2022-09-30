@@ -20,21 +20,31 @@ type List struct {
 func downloadAll(searchName string) {
 	for i := 1; i < 10; i++ {
 		musiclist := searchMusic(searchName, strconv.Itoa(i))
-		for _, value := range musiclist {
-			err := downLoad(value)
-			if err != nil {
-				fmt.Println(err.Error())
-			}
-			_ = downloadlyrics(value)
+		if musiclist == nil {
+			log.Printf("查询失败")
 		}
-		log.Println("Page" + strconv.Itoa(i) + "完成")
+		{
+			for _, value := range musiclist {
+				err, _ := downLoad(value)
+				if err != nil {
+					fmt.Println(err.Error())
+				}
+				_ = downloadlyrics(value)
+			}
+			log.Println("Page" + strconv.Itoa(i) + "完成")
+		}
 	}
 }
 
 func downloadOne(searchName string) {
 	musiclist := searchMusic(searchName, "1")
-	_ = downLoad(musiclist[0])
-	_ = downloadlyrics(musiclist[0])
+	if musiclist == nil {
+		log.Printf("查询失败")
+	}
+	{
+		_, _ = downLoad(musiclist[0])
+		_ = downloadlyrics(musiclist[0])
+	}
 }
 
 func searchMusic(SearchName string, PageNum string) []List {
@@ -75,7 +85,7 @@ func searchMusic(SearchName string, PageNum string) []List {
 	return musicrid
 }
 
-func downLoad(music List) error {
+func downLoad(music List) (err error, fpath string) {
 	music.mrid = music.mrid[6:]
 	urlname := url.QueryEscape(music.name)
 	secondreq := "https://kuwo.cn/api/v1/www/music/playUrl?mid=" + music.mrid + "&type=music&httpsStatus=1&reqId=52f3c921-39ac-11ed-a443-91cfe5b56e50"
@@ -88,7 +98,7 @@ func downLoad(music List) error {
 	secondurl, err := (&http.Client{}).Do(req)
 	if err != nil {
 		log.Printf(err.Error())
-		return err
+		return err, ""
 	}
 	var downloadurlBytes []byte
 	downloadurlBytes, _ = ioutil.ReadAll(secondurl.Body)
@@ -101,7 +111,7 @@ func downLoad(music List) error {
 	}
 	if result["data"] == nil {
 		fmt.Println(music.name + "歌曲下载失败")
-		return nil
+		return nil, ""
 	}
 	var downloadurl = result["data"].(map[string]interface{})["url"].(string)
 
@@ -109,14 +119,14 @@ func downLoad(music List) error {
 
 	res, err := http.Get(downloadurl)
 	if err != nil {
-		return err
+		return err, ""
 	}
 	f, err := os.Create(filePath)
 	if err != nil {
-		return err
+		return err, ""
 	}
 	io.Copy(f, res.Body)
 	log.Println(music.name + "歌曲下载成功！")
 	defer f.Close()
-	return err
+	return err, filePath
 }
