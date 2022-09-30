@@ -28,7 +28,8 @@ func init(){
 
 func LoadServe(file *ini.File){
 	AppMode = file.Section("server").Key("AppMode").MustString("debug")
-	HttpPort = file.Section("serve").Key("HttpPort").MustString("3000")
+	HttpPort = file.Section("serve").Key("HttpPort").MustString("80")
+	JwtKey = file.Section("JwtKey").Key("JwtKey").MustString("12345678")
 }
 
 func LoadData(file *ini.File){
@@ -38,5 +39,5 @@ func LoadData(file *ini.File){
 	DbUser = file.Section("database").Key("DbUser").MustString("OverClock")
 	DbPassWord = file.Section("database").Key("DbPassword").MustString("031819lzs")
 	DbName = file.Section("database").Key("DbName").MustString("OverClock")
-	DbName = file.Section("JwtKey").Key("JwtKey").MustString("12345678")
+
 }

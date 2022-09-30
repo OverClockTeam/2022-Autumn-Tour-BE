@@ -52,39 +52,52 @@ func ParseToken(token string)(*UserClaims,int){
 	}
 }
 //中间件
-func JWTAuth() gin.HandlerFunc{
-	return func(c *gin.Context) {
-		authHeader := c.Request.Header.Get("Authorization")
-		if authHeader == "" {
-			c.JSON(http.StatusOK, gin.H{
-				"code": errmsg.ERROR_TOKEN_EXIST,
-				"msg":  "请求头中auth为空",
-			})
-			c.Abort()
-			return
-		}
-		// 按空格分割
-		parts := strings.SplitN(authHeader, " ", 2)
-		if !(len(parts) == 2 && parts[0] == "Bearer") {
-			c.JSON(http.StatusOK, gin.H{
-				"code": errmsg.ERROR_TOKEN_TYPE_WRONG,
-				"msg":  "请求头中auth格式有误",
-			})
-			c.Abort()
-			return
-		}
-		mc, key := ParseToken(parts[1])
-		if key != errmsg.ERROR {
-			c.JSON(http.StatusOK, gin.H{
-				"code": errmsg.ERROT_TOKEN_RUNTIME,
-				"msg":  "无效的Token",
-			})
-			c.Abort()
-			return
-		}
-		// 将当前请求的username信息保存到请求的上下文c上
-		c.Set("username", mc.Username)
-		c.Next() // 后续的处理函数可以用过c.Get("username")来获取当前请求的用户信息
-	}
+func JWTToken() gin.HandlerFunc{
+	return func(c *gin.Context){
 
+		token := c.Request.Header.Get("Authorization")
+		code := errmsg.SUCCEED
+		if token == ""{
+			code = errmsg.ERROR_TOKEN_EXIST
+			code = errmsg.ERROR_TOKEN_TYPE_WRONG
+			c.JSON(http.StatusOK,gin.H{
+				"code":code,
+				"message": errmsg.GetErrMsg(code),
+			})
+			c.Abort()
+			return
+		}
+		pariseToken := strings.SplitN(token," ",2)
+		if len(pariseToken) != 2 && pariseToken[0] != "Bearer"{
+			code = errmsg.ERROR_TOKEN_TYPE_WRONG
+			c.JSON(http.StatusOK,gin.H{
+				"code":code,
+				"message": errmsg.GetErrMsg(code),
+			})
+			c.Abort()
+			return
+		}
+		claims,key := ParseToken(pariseToken[1])
+		if key == errmsg.ERROR{
+			key = errmsg.ERROR_TOKEN_WRONG
+			c.JSON(http.StatusOK,gin.H{
+				"code":code,
+				"message": errmsg.GetErrMsg(code),
+			})
+			c.Abort()
+			return
+		}
+		if time.Now().Unix()>claims.ExpiresAt{
+			code = errmsg.ERROT_TOKEN_RUNTIME
+			c.JSON(http.StatusOK,gin.H{
+				"code":code,
+				"message": errmsg.GetErrMsg(code),
+			})
+			c.Abort()
+			return
+		}
+
+		c.Set("username",claims.Username)
+		c.Next()
+	}
 }

@@ -6,15 +6,15 @@ import (
 )
 
 type Category struct{
-	id uint `gorm:"primary_key;auto_increment " json:"id"`
-	Name string  `gorm:"type:varchar(20);not null " json:"name"`
+	Id   uint   `gorm:"primary_key;auto_increment " json:"id"`
+	Name string `gorm:"type:varchar(20);not null " json:"name"`
 }
 
 //查询分类是否存在
 func CheckCate(name string)(code int){
 	var cate Category
 	db.Select("id").Where("name = ?",name).First(&cate) // 在数据表中查询
-	if cate.id > 0{
+	if cate.Id > 0{
 		return errmsg.ERROR_USERNAME_USED
 	}
 	return errmsg.SUCCEED
