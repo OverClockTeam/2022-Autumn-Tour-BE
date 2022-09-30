@@ -37,5 +37,4 @@ out/
 .vscode/
 
 ./log/hust-helper.log
-./src/main/resources/application.properties
-./doc/
+/src/main/resources/application.properties

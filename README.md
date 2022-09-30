@@ -78,13 +78,15 @@
 - 评论功能
 - 帖子/评论审核功能
 - 前后端联调没来得及
-- 优化
+- 优化性能
 
 ### 架构
-前后端分离项目，
-后端采用单体架构，
+前后端分离项目，  
+后端采用单体架构
+
 
 ### 技术栈
+- Java(JDK8)
 - SpringBoot
 - MySQL
 - Redis
@@ -93,9 +95,11 @@
 ### 其它
 
 #### 网站Logo设计
-![](doc/logo/4.png)
 
-#### 用户默认头像设计 
-![](doc/header/3.png)
+<img height="56" src="doc/logo/4.png" width="56"/>
+
+#### 用户默认头像设计
+
+<img height="56" src="doc/header/3.png" width="56"/>
 
 更多见`/doc`
