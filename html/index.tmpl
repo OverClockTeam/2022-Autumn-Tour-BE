@@ -1,0 +1,28 @@
+{{define "html/index.tmpl"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文件上传</title>
+</head>
+<body>
+    <div>
+        <h1> 你好！{{.}} <h1>
+    </div>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <div>
+        <label>上传的作业：<select name="subject"></label>
+            <option value="Ji_Zu">计算机组成原理</option>
+            <option value="Da_Wu">大学物理</option>
+            <option value="Wei_Ji">微积分</option>
+            <option value="Mao_Gai">毛泽东概论</option>
+        </select>
+        </div>
+        <div><input type="file" name="file"></div>
+        <div><input type="submit" value="上传"></div>
+    </form>
+</body>
+</html>
+{{end}}

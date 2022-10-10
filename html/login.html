@@ -1,0 +1,21 @@
+{{define "html/login.html"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+</head>
+<body>
+    <form action="/login" method="post">
+            <label>username: <input type="text" name = "username" ></label><br>
+            <label>password: <input type="password" name="password" ></label><br>
+            <input type="submit" value="登录">
+    </form>
+    <form action="/register" method="post">
+        <input type="submit" value="注册">
+    </form>
+</body>
+</html>
+{{end}}
