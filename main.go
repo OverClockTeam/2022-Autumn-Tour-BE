@@ -12,9 +12,11 @@ import (
 //定义全局数据
 var db *sql.DB
 var f *gin.Engine
+var u User 
 
 //定义结构体
 type User struct {
+	Status bool
 	Username string
 	Password string
 	Email string
@@ -50,9 +52,8 @@ func Upload(c *gin.Context) {
 	//上传文件到指定目录
 	dst := fmt.Sprintf("./subject_file/%s/%s", subject, file.Filename)
 	c.SaveUploadedFile(file, dst)
-	c.JSON(http.StatusOK, gin.H{
-		"message": fmt.Sprintf("'%s' uploaded!", file.Filename),
-	})
+	c.HTML(http.StatusOK, "html/upload_success.html", nil)
+	
 }
 
 //注册页面
@@ -94,7 +95,6 @@ func Register(c *gin.Context) {
 func Login(c *gin.Context) {
 
 	//接收数据
-	var u User
 	u.Username = c.PostForm("username")
 	u.Password = c.PostForm("password")
 	
@@ -102,18 +102,30 @@ func Login(c *gin.Context) {
 	s := "select * from users where username = ? and password = ?"
 	err := db.QueryRow(s, u.Username, u.Password).Scan(&u.Username, &u.Password, &u.Email)
 	if err != nil {
+		u.Status = false
 		c.HTML(http.StatusOK, "html/login_fail.html", nil)
 	} else {
-		c.HTML(http.StatusOK, "html/index.tmpl", u.Username)
+		u.Status = true
+		c.HTML(http.StatusOK, "html/login_success.html", nil)
 	}
 }
 
+func Index(c *gin.Context) {
+	if u.Status {
+		c.HTML(http.StatusOK, "html/index.tmpl", u.Username)
+	} else {
+		c.HTML(http.StatusOK, "html/index_error.html", nil)
+	}
+}
 func main() {
 	//连接数据库
 	err := InitDB()
 	if err != nil {
 		panic(err)
 	}
+
+	//初始化用户状态
+	u.Status = false
 
 	//获取路由对象
 	f = gin.Default()
@@ -134,5 +146,9 @@ func main() {
 
 	//接受文件
 	f.POST("/upload", Upload)
+	
+	//登录成功后的主界面
+	f.Any("/index", Index)
+
 	f.Run()
 }
