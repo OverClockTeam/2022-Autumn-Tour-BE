@@ -9,7 +9,8 @@
 </head>
 <body>
     <form action="/register/get" method="post">
-        <label>用户名:<br><input type="text" name = "username" ></label><br>
+        <label>用户名:<br><input οnkeyup="value=value.replace(/[/W]/g,'') "
+            onbeforepaste="clipboardData.setData('text',clipboardData.getData('text').replace(/[^/d]/g,''))" name = "username" ></label><br>
         <label>密码:<br><input type="password" name="password1" ></label><br>
         <label>重复密码:<br><input type="password" name="password2" ></label><br>
         <label>邮箱:<br><input type="email" name="email" ></label><br><br>

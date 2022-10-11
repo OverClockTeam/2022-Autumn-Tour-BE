@@ -52,7 +52,10 @@ func Upload(c *gin.Context) {
 	//上传文件到指定目录
 	dst := fmt.Sprintf("./subject_file/%s/%s", subject, file.Filename)
 	c.SaveUploadedFile(file, dst)
-	c.HTML(http.StatusOK, "html/upload_success.html", nil)
+	c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+		"Url" : "/",
+		"Context" : "上传文件成功！请稍后",
+	})
 	
 }
 
@@ -72,12 +75,26 @@ func Register(c *gin.Context) {
 
 		//重复密码不相等时重新进入网页
 		if u.Password != password1 {
-			c.HTML(http.StatusOK, "html/register_fail.html", nil)
+			c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+				"Url" : "/",
+				"Context" : "重复密码不相同",
+			})
+			return
+		}
+
+		//用户名存在时重新进入页面
+		s := "select * from users where username = ?"
+		err := db.QueryRow(s, u.Username).Scan(&u.Username, &u.Username, &u.Username)
+		if err == nil {
+			c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+				"Url" : "/",
+				"Context" : "用户名已存在",
+			})
+			return
 		}
 
 		//将数据上传到数据库
-
-		s := "insert into users (username, password, email) values(?,?,?)"
+		s = "insert into users (username, password, email) values(?,?,?)"
 		r, err := db.Exec(s, u.Username, u.Password, u.Email)
 		if err != nil {
 			fmt.Printf("err: %v\n", err)
@@ -88,7 +105,10 @@ func Register(c *gin.Context) {
 		}
 
 		//提示注册成功
-		c.HTML(http.StatusOK, "html/register_success.html", nil)
+		c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+			"Url" : "/",
+			"Context" : "注册成功，请稍后",
+		})
 	})
 }
 
@@ -103,10 +123,16 @@ func Login(c *gin.Context) {
 	err := db.QueryRow(s, u.Username, u.Password).Scan(&u.Username, &u.Password, &u.Email)
 	if err != nil {
 		u.Status = false
-		c.HTML(http.StatusOK, "html/login_fail.html", nil)
+		c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+			"Url" : "/",
+			"Context" : "用户名或密码不正确",
+		})
 	} else {
 		u.Status = true
-		c.HTML(http.StatusOK, "html/login_success.html", nil)
+		c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+			"Url" : "/index",
+			"Context" : "登录成功！请稍后",
+		})
 	}
 }
 
@@ -114,18 +140,27 @@ func Index(c *gin.Context) {
 	if u.Status {
 		c.HTML(http.StatusOK, "html/index.tmpl", u.Username)
 	} else {
-		c.HTML(http.StatusOK, "html/index_error.html", nil)
+		c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+			"Url" : "/",
+			"Context" : "请先登录！",
+		})
 	}
 }
+
+func Logout(c *gin.Context) {
+	u.Status = false
+	c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+		"Url" : "/",
+		"Context" : "正在登出",
+	})
+}
+
 func main() {
-	//连接数据库
-	err := InitDB()
+	err := InitDB()	//连接数据库
 	if err != nil {
 		panic(err)
 	}
-
-	//初始化用户状态
-	u.Status = false
+	u.Status = false //初始化用户状态
 
 	//获取路由对象
 	f = gin.Default()
@@ -149,6 +184,9 @@ func main() {
 	
 	//登录成功后的主界面
 	f.Any("/index", Index)
+
+	//退出登录
+	f.POST("/logout", Logout)
 
 	f.Run()
 }
