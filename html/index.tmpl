@@ -5,27 +5,60 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文件上传</title>
+    <title>作业上传</title>
 </head>
 <body>
     <div>
-        <h1> 你好！{{.}} <h1>
+        <h1> 你好！{{.name}} <h1>
     </div>
-    <form action="/upload" method="post" enctype="multipart/form-data">
+    <form action="/login/index/upload" method="post" enctype="multipart/form-data">
         <div>
-        <label>上传的作业：<select name="subject"></label>
+        <label>上传的作业：<br><select name="subject"></label><br>
             <option value="Ji_Zu">计算机组成原理</option>
             <option value="Da_Wu">大学物理</option>
             <option value="Wei_Ji">微积分</option>
             <option value="Mao_Gai">毛泽东概论</option>
         </select>
         </div>
-        <div><input type="file" name="file"></div>
-        <div><input type="submit" value="上传"></div>
+        <br>
+        <div><input type="file" name="file"></div><br>
+        <div><input type="submit" value="上传"></div><br><br>
     </form>
-    <form action="/logout" method="post">
+    {{if .monitor}}  
+    <form action="/login/index/check" method="post" enctype="multipart/form-data">
+    <div>
+    <label>检查的作业：<br><select name="subject"></label>
+        <option value="Ji_Zu">计算机组成原理</option>
+        <option value="Da_Wu">大学物理</option>
+        <option value="Wei_Ji">微积分</option>
+        <option value="Mao_Gai">毛泽东概论</option>
+    </select>
+    </div>
+    <br>
+    <div><input type="submit" value="查看未提交情况"></div>
+    </form> 
+    <table>
+        <tr>
+            <th>用户名</th>
+            <th>科目</th>
+        </tr>
+            {{ range $v := .res}}
+            <tr>
+                <td>{{ $v.Username }}</td>
+                <td>{{ $v.Subject }}</td>
+            </tr>
+            {{ end }}
+    </table>
+    <form action="/login/index/check/sendmail" method="post" enctype="multipart/form-data">
+    {{if .res}}
+    <br><div><input type="submit" value="发送邮件提醒交作业"></div>
+    </form> 
+    {{end}}
+    {{ end }}
+    <form action="/login/index/logout" method="post">
         <input type="submit" value="退出登录">
     </form>
+
 </body>
 </html>
 {{end}}
