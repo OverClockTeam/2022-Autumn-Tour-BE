@@ -23,7 +23,16 @@
         <br>
         <div><input type="file" name="file"></div><br>
         <div><input type="submit" value="上传"></div><br><br>
+        {{if .share}}
+            <label>分享码 :<p>{{.share}}</p></label>
+        {{end}}
     </form>
+    <form action="/login/index/download" method="post" enctype="multipart/form-data">
+        <div><label>分享码: <input type="text" name = "share" ></label></div><br>
+        <div><input type="submit" value="打开"></div><br><br>
+    </form>
+
+
     {{if .monitor}}  
     <form action="/login/index/check" method="post" enctype="multipart/form-data">
     <div>
@@ -49,16 +58,18 @@
             </tr>
             {{ end }}
     </table>
-    <form action="/login/index/check/sendmail" method="post" enctype="multipart/form-data">
     {{if .res}}
+    <form action="/login/index/check/sendmail" method="post" enctype="multipart/form-data">
     <br><div><input type="submit" value="发送邮件提醒交作业"></div>
     </form> 
     {{end}}
-    {{ end }}
-    <form action="/login/index/logout" method="post">
+    <form action="/login/index/check/endput" method="post" enctype="multipart/form-data">
+    <br><div><input type="submit" value="结束本次作业提交"></div>
+    </form> 
+    <form action="/login/index/logout/" method="post">
         <input type="submit" value="退出登录">
     </form>
-
+    {{end}}
 </body>
 </html>
 {{end}}

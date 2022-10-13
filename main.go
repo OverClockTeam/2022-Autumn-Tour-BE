@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
+	"math/rand"
 	"strconv"
 	"net/http"
 	"github.com/gin-gonic/gin"
@@ -15,6 +17,8 @@ import (
 var db *sql.DB
 var f *gin.Engine
 var u User 
+var users [] Homework
+var len int
 
 //定义结构体
 type User struct {
@@ -23,6 +27,7 @@ type User struct {
 	Password string
 	Class int
 	Email string
+	Share string
 }
 
 type Homework struct {
@@ -57,6 +62,27 @@ func SendMail(mailTo []string, subject string, body string) error {
     return err
 }
 
+//发送邮件
+func Send(c *gin.Context)() {
+	//定义收件人
+	var mailTo []string
+	for i := 0; i < len; i++ {
+		mailTo = append(mailTo, users[i].Email)
+	}
+	//邮件主题为"Hello"
+	subject := "交作业"
+	// 邮件正文
+	body := "请及时交" + subject + "作业！" + "来自" + u.Username + "班长"
+ 
+	err := SendMail(mailTo, subject, body)
+	if err != nil {
+		log.Println(err)
+		fmt.Println("send fail")
+		return
+	}
+ 
+	fmt.Println("send successfully")
+}
 //连接数据库
 func InitDB() (err error) {
 	dsn := "root:wj2581320495@tcp(127.0.0.1:3306)/user"
@@ -71,7 +97,15 @@ func InitDB() (err error) {
 	return nil
 }
 
-
+//产生随机数
+func Randstr() (string) {
+	var str string
+	for i := 0; i < 18; i++ {
+		rand.Seed(int64(time.Now().Nanosecond()))
+		str += string(rune(rand.Intn(74) + 48))
+	}
+	return str
+}
 //接收文件
 func Upload(c *gin.Context) {
 	//接受文件
@@ -86,22 +120,24 @@ func Upload(c *gin.Context) {
 	}
 	log.Println(file.Filename)
 
-	//第一次上传登记上传信息
-	s := "select * from homework where username = ? and subject = ?"
-	err = db.QueryRow(s, u.Username, subject).Scan()
-	if err != nil {
-		s := "insert into homework (username, subject, class) values(?,?,?)"
-		r, _ := db.Exec(s, u.Username, subject, u.Class)
-		fmt.Printf("r: %v\n", r);
-	} 
-
 	//上传文件到指定目录,格式为 班级_用户名_文件名
-	dst := fmt.Sprintf("./subject_file/%s/%s", subject, strconv.Itoa(u.Class) + "_" + u.Username + "_" + file.Filename)
+	file_name := strconv.Itoa(u.Class) + "_" + u.Username + "_" + file.Filename
+	dst := fmt.Sprintf("./subject_file/%s/%s", subject, file_name)
 	c.SaveUploadedFile(file, dst)
 	c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
 		"Url" : "/login/index",
 		"Context" : "上传文件成功！请稍后",
 	})
+
+	//登记上传信息
+	u.Share = Randstr()
+	//清除之前上传的信息,再上传新信息
+	s := "delete from homework where username = ? and subject = ?"
+	r, _ := db.Exec(s, u.Username, subject)
+	fmt.Printf("r: %v\n", r);
+	s = "insert into homework (username, subject, share, file_name, class) values(?,?,?,?,?)"
+	r, _ = db.Exec(s, u.Username, subject, u.Share, file_name, u.Class)
+	fmt.Printf("r: %v\n", r);
 }
 
 //注册页面
@@ -166,6 +202,7 @@ func Login(c *gin.Context) {
 	//接收数据
 	u.Username = c.PostForm("username")
 	u.Password = c.PostForm("password")
+	u.Share = ""
 	
 	//判断是否存在账号
 	s := "select * from users where username = ? and password = ?"
@@ -182,21 +219,18 @@ func Login(c *gin.Context) {
 			"Context" : "登录成功！请稍后",
 		})
 	}
-
-	//登录成功后的主界面
-	f.Any("/login/index", Index)
 }
 
 //检查作业
 func Check(c *gin.Context) {
 	//接受数据
 	subject := c.PostForm("subject")
-	len := 0
-	
+
 	//找出自己班级没交某个作业的人并输出
 	s := "select users.username, users.email, homework.username from users left join homework on users.username = homework.username and users.class = ? and homework.subject = ?"
 	r, _ := db.Query(s, u.Class, subject)
-	var users [] Homework
+	users = []Homework{}
+	len = 0
 	var u1 Homework
 	for r.Next() {
 		r.Scan(&u1.Username, &u1.Email, &u1.Subject)
@@ -214,33 +248,25 @@ func Check(c *gin.Context) {
 		"name" : u.Username + "班长",
 		"monitor" : 1,
 	})
-	
-	//发送邮件 
-	f.POST("/login/index/check/sendmail", func(c *gin.Context) {
-		//定义收件人
-		mailTo := []string{
-			"2307742375@qq.com",
-		}
-		/* for i := 0; i < len; i++ {
-			mailTo = append(mailTo, users[i].Email)
-		} */
-		//邮件主题为"Hello"
-		subject := "交作业"
-		// 邮件正文
-		body := "请及时交" + subject + "作业！" + "来自" + u.Username + "班长"
-	 
-		err := SendMail(mailTo, subject, body)
-		if err != nil {
-			log.Println(err)
-			fmt.Println("send fail")
-			return
-		}
-	 
-		fmt.Println("send successfully")
-	})
 
 }
 
+//下载作业
+
+func Download(c *gin.Context) {
+	var subject, file_name string
+	share := c.PostForm("share")
+	s := "select file_name, subject from homework where share = ?"
+	err := db.QueryRow(s, share).Scan(&file_name, &subject)
+	if err != nil {
+		c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+			"Url" : "/login/index",
+			"Context" : "没有找到分享码！",
+		})
+		return 
+	}
+	c.File("./subject_file/" + subject + "/" + file_name)
+}
 //主界面渲染
 func Index(c *gin.Context) {
 	//阻止没有登录的访问,并分别渲染普通用户和班长的页面
@@ -253,36 +279,41 @@ func Index(c *gin.Context) {
 	case 1: //普通用户
 		c.HTML(http.StatusOK, "html/index.tmpl", gin.H{
 			"name" : u.Username,
+			"share" : u.Share,
 			"monitor" : 0,
 		})
 	case 2:	//班长
 		//导出没有交作业的同班同学并制作成表格
 		c.HTML(http.StatusOK, "html/index.tmpl", gin.H{
 			"name" : u.Username + "班长",
+			"share" : u.Share,
 			"monitor" : 1,
 			"res" : nil,
 		})
 	}
 
-	//接受作业
-	f.POST("/login/index/upload", Upload)
-
-	//检查作业
-	f.POST("/login/index/check", Check)
-
-	//退出登录
-	f.POST("/login/index/logout", Logout)
 }
 
 //登出
 func Logout(c *gin.Context) {
 	u.Status = 0
+	u.Share = ""
 	c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
 		"Url" : "/",
 		"Context" : "正在登出",
 	})
 }
 
+//清空本班的作业表
+func Endput (c *gin.Context) {
+	s := "delete from homework where class = ?"
+	r, _ := db.Exec(s, u.Class)
+	fmt.Printf("r: %v\n", r)
+	c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
+		"Url" : "/login/index",
+		"Context" : "已清空本班作业提交记录",
+	})
+}
 func main() {
 	err := InitDB()	//连接数据库
 	if err != nil {
@@ -301,11 +332,34 @@ func main() {
 		c.HTML(http.StatusOK, "html/login.html", nil)
 	})
 
+	//处理点击注册后的情况
+	f.POST("/register", Register)
+
 	//处理点击登录后的情况
 	f.POST("/login", Login)
 
-	//处理点击注册后的情况
-	f.POST("/register", Register)
+	//登录成功后的主界面
+	f.Any("/login/index", Index)
+
+
+	//下载作业
+	f.POST("/login/index/download", Download)
+
+	//接受作业
+	f.POST("/login/index/upload", Upload)
+
+	//检查作业
+	f.POST("/login/index/check", Check)
+
+	//退出登录
+	f.POST("/login/index/logout", Logout)
+
+	//发送邮件 
+	f.POST("/login/index/check/sendmail", Send)
+
+	//结束作业提交，清空本班的作业表
+	f.POST("/login/index/check/endput", Endput)
+
 
 	f.Run()
 }
