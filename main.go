@@ -166,8 +166,8 @@ func Register(c *gin.Context) {
 		}
 
 		//用户名存在时重新进入页面
-		s := "select * from users where username = ?"
-		err = db.QueryRow(s, u.Username).Scan(&u.Username, &u.Username, &u.Username)
+		s := "select username from users where username = ?"
+		err = db.QueryRow(s, u.Username).Scan(&u.Username)
 		if err == nil {
 			c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
 				"Url" : "/",
