@@ -40,6 +40,4 @@
 # 2022/10/14
 ## 1.部署服务器
 ### a.获得linux服务器,在linux里面安装了各种软件，配置了go环境和mysql环境，上传了文件
-### b.通过cpolar内网穿透，地址为http://2e1c2127.r3.cpolar.top/
-# 2022/10/15
-## 1.重构代码
+### b.通过cpolar内网穿透，能够通过https://2a73818f.vip.cpolar.cn访问
