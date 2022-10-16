@@ -14,22 +14,23 @@ func UseMyRouter(f *gin.Engine) {
 		//处理点击登录后的情况
 		post.POST("/login", api.Login)
 
-		//下载作业
-		post.POST("/download", api.Download)
+		//发送邮件 
+		post.POST("/sendmail", api.Send)
+		
+		//上传作业
+		post.POST("/upload", api.Upload)
+
+		//结束作业提交，清空本班的作业表
+		post.POST("/endput", api.Endput)
 
 	}
 	get := f.Group("/get")
 	{
+		//下载作业
+		get.GET("/download", api.Download)
+
 		//检查作业
 		get.GET("/check", api.Check)
 
-		//发送邮件 
-		get.GET("/sendmail", api.Send)
-
-		//结束作业提交，清空本班的作业表
-		get.GET("/endput", api.Endput)
-
-		//上传作业
-		get.GET("/upload", api.Upload)
 	}
 }
