@@ -1,8 +1,6 @@
 package api
 
 import (
-	"log"
-	"fmt"
 	"net/http"
 	"HC_WJ/util"
 	"HC_WJ/emailclt"
@@ -15,7 +13,7 @@ func Send(c *gin.Context)() {
 	tokenstring := c.GetHeader("token")
 	u, err := util.ParseToken(tokenstring)
 	if err != nil {
-		c.JSON(http.StatusOK,gin.H{
+		c.JSON(http.StatusBadRequest,gin.H{
 			"message" : "令牌过期",
 		})
 		return 
@@ -33,10 +31,12 @@ func Send(c *gin.Context)() {
  
 	err = emailclt.SendMail(mailTo, subject, body)
 	if err != nil {
-		log.Println(err)
-		fmt.Println("send fail")
-		return
+		c.JSON(http.StatusBadRequest,gin.H{
+			"message" : "上传失败",
+		})
 	}
  
-	fmt.Println("send successfully")
+	c.JSON(http.StatusOK,gin.H{
+		"message" : "上传成功",
+	})
 }

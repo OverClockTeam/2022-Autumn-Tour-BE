@@ -14,7 +14,7 @@ func Endput (c *gin.Context) {
 	tokenstring := c.GetHeader("token")
 	u, err := util.ParseToken(tokenstring)
 	if err != nil {
-		c.JSON(http.StatusOK,gin.H{
+		c.JSON(http.StatusBadRequest,gin.H{
 			"message" : "令牌过期",
 		})
 		return 
