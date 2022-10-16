@@ -12,7 +12,7 @@ import (
 //发送邮件
 func Send(c *gin.Context)() {
 	//获取登录者信息
-	tokenstring := c.GetHeader("")
+	tokenstring := c.GetHeader("token")
 	u, err := util.ParseToken(tokenstring)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{

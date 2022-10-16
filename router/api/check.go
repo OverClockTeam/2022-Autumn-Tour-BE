@@ -14,7 +14,7 @@ var Len int
 func Check(c *gin.Context) {
 	//接受数据
 	subject := c.PostForm("subject")
-	tokenstring := c.GetHeader("")
+	tokenstring := c.GetHeader("token")
 	u, err := util.ParseToken(tokenstring)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{

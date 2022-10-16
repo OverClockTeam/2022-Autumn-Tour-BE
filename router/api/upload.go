@@ -25,7 +25,7 @@ func Randstr() (string) {
 //接收文件
 func Upload(c *gin.Context) {
 	//接受数据
-	tokenstring := c.GetHeader("")
+	tokenstring := c.GetHeader("token")
 	u, err := util.ParseToken(tokenstring)
 	if err != nil {
 		c.JSON(http.StatusOK,gin.H{
