@@ -28,7 +28,7 @@ func Upload(c *gin.Context) {
 	tokenstring := c.GetHeader("token")
 	u, err := util.ParseToken(tokenstring)
 	if err != nil {
-		c.JSON(http.StatusOK,gin.H{
+		c.JSON(http.StatusBadRequest,gin.H{
 			"message" : "令牌过期",
 		})
 		return 
@@ -50,9 +50,8 @@ func Upload(c *gin.Context) {
 	file_name := strconv.Itoa(u.Class) + "_" + u.Username + "_" + file.Filename
 	dst := fmt.Sprintf("./subject_file/%s/%s", subject, file_name)
 	c.SaveUploadedFile(file, dst)
-	c.HTML(http.StatusOK, "html/jump.tmpl", gin.H{
-		"Url" : "/login/index",
-		"Context" : "上传文件成功！请稍后",
+	c.JSON(http.StatusOK, gin.H{
+		"message" : "上传文件成功!",
 	})
 
 	//登记上传信息
